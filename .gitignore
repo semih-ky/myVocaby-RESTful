@@ -2,3 +2,4 @@ node_modules
 secrets
 .env
 utils/jwt.util.js
+.DS_Store
