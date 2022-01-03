@@ -10,13 +10,22 @@ exports.deleteWord = async (req, res, next) => {
     return next(error);
   }
 
-  const wordDBId = req.body.wordId;
+  const wordId = req.body.wordId;
   const filter = req.body.filter;
 
   const user = req.user;
 
-  let wordToDelete = user.words.id(wordDBId);
-  if (!wordToDelete) {
+  // let wordToDelete = user.words.id(wordDBId);
+  // if (!wordToDelete) {
+  //   const err = new Error("Word could not found!");
+  //   err.httpStatusCode = 404;
+  //   return next(err);
+  // }
+
+  let wordToDeleteIndex = user.words.findIndex(
+    (word) => word.wordId === wordId
+  );
+  if (wordToDeleteIndex === -1) {
     const err = new Error("Word could not found!");
     err.httpStatusCode = 404;
     return next(err);
@@ -28,7 +37,8 @@ exports.deleteWord = async (req, res, next) => {
       error.httpStatusCode = 404;
       return next(error);
     }
-    wordToDelete.filters = wordToDelete.filters.filter((val) => val !== filter);
+    // wordToDelete.filters = wordToDelete.filters.filter((val) => val !== filter);
+    user.words[wordToDeleteIndex].filters.filter((val) => val !== filter);
 
     try {
       await user.save();
@@ -39,7 +49,11 @@ exports.deleteWord = async (req, res, next) => {
     return res.status(200).json({ message: "Successful!" });
   }
 
-  wordToDelete.remove();
+  // wordToDelete.remove();
+
+  // let updatedWordList = user.words.filter(item => item.wordId !== wordId);
+  // user.words = updatedWordList;
+  user.words.splice(wordToDeleteIndex, 1);
 
   try {
     await user.save();
